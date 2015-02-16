@@ -92,11 +92,11 @@ int decodeInstruction(currentInstruction curr){
       $rt = registerLookup(curr.token.at(2));
       funct = 0x20;
 
-      assembled = assembled | (0x00 << 31);
-      assembled = assembled | (($rs & lower5BitMask) << 25);
-      assembled = assembled | (($rt & lower5BitMask) << 20);
-      assembled = assembled | (($rd & lower5BitMask) << 15);
-      assembled = assembled | ((funct & lower6BitMask) << 5);
+      assembled = assembled | (0x00 << 26);
+      assembled = assembled | (($rs & lower5BitMask) << 21);
+      assembled = assembled | (($rt & lower5BitMask) << 16);
+      assembled = assembled | (($rd & lower5BitMask) << 11);
+      assembled = assembled | ((funct & lower6BitMask) << 0);
       return assembled;
       //qDebug() << $rd << " " << $rs << " " << $rt;
   }

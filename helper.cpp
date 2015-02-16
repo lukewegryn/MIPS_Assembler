@@ -128,6 +128,15 @@ int decodeInstruction(currentInstruction curr){
       return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
   }
 
+  else if(curr.name == "jr"){
+      opcode = 0x00;
+      $rs = registerLookup(curr.token.at(0));
+      funct = 0x08;
+      shamt = 0x00;
+
+      return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
+  }
+
   else if(curr.name == "nor"){
       opcode = 0x00;
       $rd = registerLookup(curr.token.at(0));

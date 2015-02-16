@@ -85,7 +85,7 @@ int rTypeAssemble(char opcode, char $rs, char $rt, char $rd, char shamt, char fu
     assembled = assembled | (($rs & lower5BitMask) << 21);
     assembled = assembled | (($rt & lower5BitMask) << 16);
     assembled = assembled | (($rd & lower5BitMask) << 11);
-    assembled = assembled | ((shamt & lower5BitMask) << 11);
+    assembled = assembled | ((shamt & lower5BitMask) << 6);
     assembled = assembled | ((funct & lower6BitMask) << 0);
 
     return assembled;
@@ -94,6 +94,7 @@ int rTypeAssemble(char opcode, char $rs, char $rt, char $rd, char shamt, char fu
 int decodeInstruction(currentInstruction curr){
   char $rd, $rs, $rt,opcode,shamt, funct;
 
+//r-type instructions
   if(curr.name == "add"){
       opcode = 0x00;
       $rd = registerLookup(curr.token.at(0));
@@ -103,6 +104,124 @@ int decodeInstruction(currentInstruction curr){
       shamt = 0x00;
 
       return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
+  }
+
+  else if(curr.name == "addu"){
+      opcode = 0x00;
+      $rd = registerLookup(curr.token.at(0));
+      $rs = registerLookup(curr.token.at(1));
+      $rt = registerLookup(curr.token.at(2));
+      funct = 0x21;
+      shamt = 0x00;
+
+      return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
+  }
+
+  else if(curr.name == "and"){
+      opcode = 0x00;
+      $rd = registerLookup(curr.token.at(0));
+      $rs = registerLookup(curr.token.at(1));
+      $rt = registerLookup(curr.token.at(2));
+      funct = 0x24;
+      shamt = 0x00;
+
+      return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
+  }
+
+  else if(curr.name == "nor"){
+      opcode = 0x00;
+      $rd = registerLookup(curr.token.at(0));
+      $rs = registerLookup(curr.token.at(1));
+      $rt = registerLookup(curr.token.at(2));
+      funct = 0x27;
+      shamt = 0x00;
+
+      return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
+
+  }
+
+  else if(curr.name == "or"){
+      opcode = 0x00;
+      $rd = registerLookup(curr.token.at(0));
+      $rs = registerLookup(curr.token.at(1));
+      $rt = registerLookup(curr.token.at(2));
+      funct = 0x25;
+      shamt = 0x00;
+
+    return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
+  }
+
+  else if(curr.name == "slt"){
+      opcode = 0x00;
+      $rd = registerLookup(curr.token.at(0));
+      $rs = registerLookup(curr.token.at(1));
+      $rt = registerLookup(curr.token.at(2));
+      funct = 0x2a;
+      shamt = 0x00;
+
+      return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
+
+  }
+
+  else if(curr.name == "sltu"){
+      opcode = 0x00;
+      $rd = registerLookup(curr.token.at(0));
+      $rs = registerLookup(curr.token.at(1));
+      $rt = registerLookup(curr.token.at(2));
+      funct = 0x2b;
+      shamt = 0x00;
+
+  return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
+  }
+
+  else if(curr.name == "sll"){
+      bool ok = false;
+      opcode = 0x00;
+      $rd = registerLookup(curr.token.at(0));
+      $rt = registerLookup(curr.token.at(1));
+      shamt = (char)curr.token.at(2).toInt(&ok, 10);
+      funct = 0x00;
+      $rs = 0x00;
+
+      return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
+
+  }
+
+  else if(curr.name == "srl"){
+      bool ok = false;
+      opcode = 0x00;
+      $rd = registerLookup(curr.token.at(0));
+      $rt = registerLookup(curr.token.at(1));
+      shamt = (char)curr.token.at(2).toInt(&ok, 10);
+      funct = 0x02;
+      $rs = 0x00;
+
+      return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
+
+  }
+
+  else if(curr.name == "sub"){
+      opcode = 0x00;
+      $rd = registerLookup(curr.token.at(0));
+      $rs = registerLookup(curr.token.at(1));
+      $rt = registerLookup(curr.token.at(2));
+      funct = 0x22;
+      shamt = 0x00;
+
+      return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
+
+  }
+
+  else if(curr.name == "subu"){
+      opcode = 0x00;
+      $rd = registerLookup(curr.token.at(0));
+      $rs = registerLookup(curr.token.at(1));
+      $rt = registerLookup(curr.token.at(2));
+      funct = 0x23;
+      shamt = 0x00;
+
+    return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
+
   }
 
   return 0;

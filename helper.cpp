@@ -76,29 +76,33 @@ char registerLookup(QString reg){
   return (char)-1;
 }
 
+int rTypeAssemble(char opcode, char $rs, char $rt, char $rd, char shamt, char funct){
+    int assembled = 0x0000;
+    char lower5BitMask = 0x1f;
+    char lower6BitMask = 0x3f;
+
+    assembled = assembled | (opcode << 26);
+    assembled = assembled | (($rs & lower5BitMask) << 21);
+    assembled = assembled | (($rt & lower5BitMask) << 16);
+    assembled = assembled | (($rd & lower5BitMask) << 11);
+    assembled = assembled | ((shamt & lower5BitMask) << 11);
+    assembled = assembled | ((funct & lower6BitMask) << 0);
+
+    return assembled;
+}
+
 int decodeInstruction(currentInstruction curr){
   char $rd, $rs, $rt,opcode,shamt, funct;
-  int assembled = 0x0000;
-  char lower5BitMask = 0x1f;
-  char lower6BitMask = 0x3f;
-  /*QByteArray assembled;
-  assembled.resize(4);
-  for(int i = 0; i < 4; i++){
-    assembled[0] = 0x00;
-  }*/
+
   if(curr.name == "add"){
+      opcode = 0x00;
       $rd = registerLookup(curr.token.at(0));
       $rs = registerLookup(curr.token.at(1));
       $rt = registerLookup(curr.token.at(2));
       funct = 0x20;
+      shamt = 0x00;
 
-      assembled = assembled | (0x00 << 26);
-      assembled = assembled | (($rs & lower5BitMask) << 21);
-      assembled = assembled | (($rt & lower5BitMask) << 16);
-      assembled = assembled | (($rd & lower5BitMask) << 11);
-      assembled = assembled | ((funct & lower6BitMask) << 0);
-      return assembled;
-      //qDebug() << $rd << " " << $rs << " " << $rt;
+      return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
   }
 
   return 0;

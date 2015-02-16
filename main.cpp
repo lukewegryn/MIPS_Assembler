@@ -67,6 +67,10 @@ int main(int argc, char** argv) {
     QString outFileName;
     outFileName = QString::fromStdString(baseName);
     outFileName += ".txt";
+    QFile file(outFileName);
+    if(file.exists()){
+      file.remove();
+    }
     qDebug() << outFileName;
     std::cout << std::endl;
     std::string objName = baseName + ".obj";

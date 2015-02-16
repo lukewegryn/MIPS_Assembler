@@ -9,10 +9,14 @@
 #include <QStringList>
 #include <QString>
 #include <QDebug>
+#include <QFile>
+#include <QTextStream>
+#include <QBitArray>
 
 #include "exceptions.h"
 #include "lexer.h"
 #include "util.h"
+#include "helper.cpp"
 
 std::string read_file(const std::string& name) {
   std::ifstream file(name);
@@ -26,11 +30,19 @@ std::string read_file(const std::string& name) {
   return std::move(stream.str());
 }
 
-struct currentInstruction {
-  QString label;
-  QString name;
-  QStringList token;
-} currInstruction;
+
+QByteArray parseInstruction(currentInstruction curr, QString outFile){
+    QBitArray assembled(32);
+
+    QString = decodeInstruction(curr);
+    QFile file(outFile);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+      return 0;
+
+      QTextStream out(&file);
+      out << "The magic number is: " << 49 << "\n";
+      return 0;
+}
 
 int main(int argc, char** argv) {
   // Adjusting -- argv[0] is always filename.
@@ -54,6 +66,11 @@ int main(int argc, char** argv) {
     // 4 is len(".asm")
     auto length = asmName.size() - string_length(".asm");
     std::string baseName(asmName.begin(), asmName.begin() + length);
+    QString outFileName;
+    outFileName = QString::fromStdString(baseName);
+    outFileName += ".txt";
+    qDebug() << outFileName;
+    std::cout << std::endl;
     std::string objName = baseName + ".obj";
     try {
       auto text = read_file(asmName);
@@ -98,6 +115,8 @@ int main(int argc, char** argv) {
         qDebug() << currInstruction.token.at(k) << " ";
       }
       std::cout << std::endl;
+
+      parseInstruction(currInstruction, outFileName);
 
 
     }

@@ -1,76 +1,105 @@
+#include <QDebug>
+#include <QByteArray>
+#include <bitset>
+
 struct currentInstruction {
   QString label;
   QString name;
   QStringList token;
 } currInstruction;
 
-int registerLookup(QString reg){
+char registerLookup(QString reg){
   if(reg == "$zero" || reg == "$0")
-    return 0;
+    return (char)0;
   else if(reg == "$at")
-    return 1;
+    return (char)1;
   else if(reg == "$v0")
-    return 2;
+    return (char)2;
   else if(reg == "$v1")
-    return 3;
+    return (char)3;
   else if(reg == "$a0")
-    return 4;
+    return (char)4;
   else if(reg == "$a1")
-    return 5;
+    return (char)5;
   else if(reg == "$a2")
-    return 6;
+    return (char)6;
   else if(reg == "$a3")
-    return 7;
+    return (char)7;
   else if(reg == "$t0")
-    return 8;
+    return (char)8;
   else if(reg == "$t1")
-    return 9;
+    return (char)9;
   else if(reg == "$t2")
-    return 10;
+    return (char)10;
   else if(reg == "$t3")
-    return 11;
+    return (char)11;
   else if(reg == "$t4")
-    return 12;
+    return (char)12;
   else if(reg == "$t5")
-    return 13;
+    return (char)13;
   else if(reg == "$t6")
-    return 14;
+    return (char)14;
   else if(reg == "$t7")
-    return 15;
+    return (char)15;
   else if(reg == "$s0")
-    return 16;
+    return (char)16;
   else if(reg == "$s1")
-    return 17;
+    return (char)17;
   else if(reg == "$s2")
-    return 18;
+    return (char)18;
   else if(reg == "$s3")
-    return 19;
+    return (char)19;
   else if(reg == "$s4")
-    return 20;
+    return (char)20;
   else if(reg == "$s5")
-    return 21;
+    return (char)21;
   else if(reg == "$s6")
-    return 22;
+    return (char)22;
   else if(reg == "$s7")
-    return 23;
+    return (char)23;
   else if(reg == "$t8")
-    return 24;
+    return (char)24;
   else if(reg == "$t9")
-    return 25;
+    return (char)25;
   else if(reg == "$k0")
-    return 26;
+    return (char)26;
   else if(reg == "$k1")
-    return 27;
+    return (char)27;
   else if(reg == "$gp")
-    return 28;
+    return (char)28;
   else if(reg == "$sp")
-    return 29;
+    return (char)29;
   else if(reg == "$fp")
-    return 30;
+    return (char)30;
   else if(reg == "$ra")
-    return 31;
+    return (char)31;
+  return (char)-1;
 }
 
-QString decodeInstruction(currentInstruction curr){
-  return "Hello";
+int decodeInstruction(currentInstruction curr){
+  char $rd, $rs, $rt,opcode,shamt, funct;
+  int assembled = 0x0000;
+  char lower5BitMask = 0x1f;
+  char lower6BitMask = 0x3f;
+  /*QByteArray assembled;
+  assembled.resize(4);
+  for(int i = 0; i < 4; i++){
+    assembled[0] = 0x00;
+  }*/
+  if(curr.name == "add"){
+      $rd = registerLookup(curr.token.at(0));
+      $rs = registerLookup(curr.token.at(1));
+      $rt = registerLookup(curr.token.at(2));
+      funct = 0x20;
+
+      assembled = assembled | (0x00 << 31);
+      assembled = assembled | (($rs & lower5BitMask) << 25);
+      assembled = assembled | (($rt & lower5BitMask) << 20);
+      assembled = assembled | (($rd & lower5BitMask) << 15);
+      assembled = assembled | ((funct & lower6BitMask) << 5);
+      return assembled;
+      //qDebug() << $rd << " " << $rs << " " << $rt;
+  }
+
+  return 0;
 }

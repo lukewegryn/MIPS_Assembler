@@ -32,15 +32,13 @@ std::string read_file(const std::string& name) {
 
 
 QByteArray parseInstruction(currentInstruction curr, QString outFile){
-    QBitArray assembled(32);
-
-    QString = decodeInstruction(curr);
+    int assembled = decodeInstruction(curr);
     QFile file(outFile);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!file.open(QIODevice::Append | QIODevice::Text))
       return 0;
 
       QTextStream out(&file);
-      out << "The magic number is: " << 49 << "\n";
+      out << hex << assembled << "\n";
       return 0;
 }
 
@@ -98,23 +96,25 @@ int main(int argc, char** argv) {
       currInstruction.token.clear();
       if(lexed[i].labels.size() > 0){		// Checking if there is a label in the current instruction
         currInstruction.label = QString::fromStdString(lexed[i].labels[0]);
-        qDebug() << currInstruction.label << "\n";
+        //qDebug() << currInstruction.label << "\n";
         }
       currInstruction.name = QString::fromStdString(lexed[i].name);
       std::vector<lexer::token> tokens = lexed[i].args;
       for(int j=0; j < (int)tokens.size(); j++){       // Prints all the tokens of this instruction like $t1, $t2, $t3
-        /*if (tokens[j].type == lexer::token::Integer){
-          int currInt = tokens[j].integer;
+        if (tokens[j].type == lexer::token::Integer){
+          int currInt = tokens[j].integer();
+          //std::cout << tokens[j].integer << std::endl;
           currInstruction.token.append(QString::number(currInt));
-        }*/
+        }
+        else
           currInstruction.token.append(QString::fromStdString(tokens[j].string()));
       }
-      qDebug() << currInstruction.name << "\n";
+      //qDebug() << currInstruction.name << "\n";
       //std::cout << currInstruction.token << std:: endl;
-      for(int k = 0; k < currInstruction.token.size(); k++){
+      /*for(int k = 0; k < currInstruction.token.size(); k++){
         qDebug() << currInstruction.token.at(k) << " ";
-      }
-      std::cout << std::endl;
+      }*/
+      //std::cout << std::endl;
 
       parseInstruction(currInstruction, outFileName);
 

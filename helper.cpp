@@ -1,12 +1,20 @@
 #include <QDebug>
 #include <QByteArray>
 #include <bitset>
+#include <QStringList>
+#include <QList>
 
 struct currentInstruction {
   QString label;
   QString name;
   QStringList token;
 } currInstruction;
+
+QString rmParen(QString arg){
+  QString temp;
+  temp = temp.remove("(");
+  return temp.remove(")");
+}
 
 char registerLookup(QString reg){
   if(reg == "$zero" || reg == "$0")
@@ -255,6 +263,36 @@ int decodeInstruction(currentInstruction curr){
     $rt = registerLookup(curr.token.at(0));
     $rs = registerLookup(curr.token.at(1));
     immediate = curr.token.at(2).toInt(&ok, 10);
+
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "addiu"){
+    bool ok = false;
+    opcode = 0x09;
+    $rt = registerLookup(curr.token.at(0));
+    $rs = registerLookup(curr.token.at(1));
+    immediate = curr.token.at(2).toInt(&ok, 10);
+
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "andi"){
+    bool ok = false;
+    opcode = 0x0c;
+    $rt = registerLookup(curr.token.at(0));
+    $rs = registerLookup(curr.token.at(1));
+    immediate = curr.token.at(2).toInt(&ok, 10);
+
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "lbu"){
+    bool ok = false;
+    opcode = 0x23;
+    $rt = registerLookup(curr.token.at(0));
+    immediate = curr.token.at(1)).toInt(&ok, 10);
+    $rs = registerLookup(rmParen(curr.token.at(2));
 
     return iTypeAssemble(opcode, $rt, $rs, immediate);
   }

@@ -101,8 +101,16 @@ int main(int argc, char** argv) {
       currInstruction.token.clear();
       if(lexed[i].labels.size() > 0){		// Checking if there is a label in the current instruction
         currInstruction.label = QString::fromStdString(lexed[i].labels[0]);
+        currLabel.first = currInstruction.label;
+        currLabel.second = i;
+        symbolList.append(currLabel);
         //qDebug() << currInstruction.label << "\n";
         }
+
+    }
+
+    for (int i =0; i < (int)lexed.size(); i++){
+      currInstruction.token.clear();
       currInstruction.name = QString::fromStdString(lexed[i].name);
       std::vector<lexer::token> tokens = lexed[i].args;
       for(int j=0; j < (int)tokens.size(); j++){       // Prints all the tokens of this instruction like $t1, $t2, $t3
@@ -120,10 +128,8 @@ int main(int argc, char** argv) {
         qDebug() << currInstruction.token.at(k) << " ";
       }*/
       //std::cout << std::endl;
-
-      parseInstruction(currInstruction, outFileName);
-
-
+        currInstruction.position = i;
+        parseInstruction(currInstruction, outFileName);
     }
 
 	  } catch(const bad_asm& e) {
@@ -140,6 +146,10 @@ int main(int argc, char** argv) {
       std::cout << err.what() << endl;
       return 1;
     }
+  }
+
+  for(int i = 0; i < symbolList.size(); i++){
+      qDebug() << symbolList.at(i).first << "\t" << symbolList.at(i).second;
   }
   //getchar();
   return 0;

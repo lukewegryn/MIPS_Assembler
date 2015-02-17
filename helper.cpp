@@ -4,11 +4,16 @@
 #include <QStringList>
 #include <QList>
 #include <iostream>
+#include <QPair>
+
+QPair<QString, int> currLabel;
+QList<QPair<QString, int> > symbolList;
 
 struct currentInstruction {
   QString label;
   QString name;
   QStringList token;
+  int position;
 } currInstruction;
 
 QString rmParen(QString arg){
@@ -287,6 +292,40 @@ int decodeInstruction(currentInstruction curr){
     immediate = curr.token.at(2).toInt(&ok, 10);
 
     return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "beq"){
+    bool ok = false;
+    opcode = 0x04;
+    $rs = registerLookup(curr.token.at(0));
+    $rt = registerLookup(curr.token.at(1));
+    for(int i = 0; i < symbolList.size(); i++){
+      if(curr.label == symbolList.at(i).first){
+            immediate = (symbolList.at(i).second - curr.position - 1);
+            return iTypeAssemble(opcode, $rt, $rs, immediate);
+          }
+
+    }
+      immediate = curr.token.at(2).toInt(&ok, 10);
+      return iTypeAssemble(opcode, $rt, $rs, immediate);
+
+  }
+
+  else if(curr.name == "bne"){
+    bool ok = false;
+    opcode = 0x05;
+    $rs = registerLookup(curr.token.at(0));
+    $rt = registerLookup(curr.token.at(1));
+    for(int i = 0; i < symbolList.size(); i++){
+      if(curr.label == symbolList.at(i).first){
+            immediate = (symbolList.at(i).second - curr.position - 1);
+            return iTypeAssemble(opcode, $rt, $rs, immediate);
+          }
+
+    }
+      immediate = curr.token.at(2).toInt(&ok, 10);
+      return iTypeAssemble(opcode, $rt, $rs, immediate);
+
   }
 
   else if(curr.name == "lbu"){

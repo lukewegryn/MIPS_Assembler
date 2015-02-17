@@ -11,7 +11,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QTextStream>
-#include <QBitArray>
+#include <QByteArray>
 
 #include "exceptions.h"
 #include "lexer.h"
@@ -32,12 +32,13 @@ std::string read_file(const std::string& name) {
 
 
 QByteArray parseInstruction(currentInstruction curr, QString outFile){
-    int assembled = decodeInstruction(curr);
+    uint assembled = decodeInstruction(curr);
     QFile file(outFile);
     if (!file.open(QIODevice::Append | QIODevice::Text))
       return 0;
 
       QTextStream out(&file);
+      //QString hexadecimal = QByteArray::fromHex(QString::number(assembled));
       out << hex << assembled << "\n";
       return 0;
 }
@@ -100,7 +101,7 @@ int main(int argc, char** argv) {
       currInstruction.token.clear();
       if(lexed[i].labels.size() > 0){		// Checking if there is a label in the current instruction
         currInstruction.label = QString::fromStdString(lexed[i].labels[0]);
-        qDebug() << currInstruction.label << "\n";
+        //qDebug() << currInstruction.label << "\n";
         }
       currInstruction.name = QString::fromStdString(lexed[i].name);
       std::vector<lexer::token> tokens = lexed[i].args;
@@ -113,12 +114,12 @@ int main(int argc, char** argv) {
         else
           currInstruction.token.append(QString::fromStdString(tokens[j].string()));
       }
-      qDebug() << currInstruction.name << "\n";
+      //qDebug() << currInstruction.name << "\n";
       //std::cout << currInstruction.token << std:: endl;
-      for(int k = 0; k < currInstruction.token.size(); k++){
+      /*for(int k = 0; k < currInstruction.token.size(); k++){
         qDebug() << currInstruction.token.at(k) << " ";
-      }
-      std::cout << std::endl;
+      }*/
+      //std::cout << std::endl;
 
       parseInstruction(currInstruction, outFileName);
 

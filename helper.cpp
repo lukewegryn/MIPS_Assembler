@@ -3,6 +3,7 @@
 #include <bitset>
 #include <QStringList>
 #include <QList>
+#include <iostream>
 
 struct currentInstruction {
   QString label;
@@ -12,7 +13,7 @@ struct currentInstruction {
 
 QString rmParen(QString arg){
   QString temp;
-  temp = temp.remove("(");
+  temp = arg.remove("(");
   return temp.remove(")");
 }
 
@@ -84,10 +85,10 @@ char registerLookup(QString reg){
   return (char)-1;
 }
 
-int rTypeAssemble(char opcode, char $rs, char $rt, char $rd, char shamt, char funct){
-    int assembled = 0x0000;
-    char lower5BitMask = 0x1f;
-    char lower6BitMask = 0x3f;
+int rTypeAssemble(unsigned char opcode, unsigned char $rs, unsigned char $rt, unsigned char $rd, unsigned char shamt, unsigned char funct){
+    uint assembled = 0x00000000;
+    unsigned char lower5BitMask = 0x1f;
+    unsigned char lower6BitMask = 0x3f;
 
     assembled = assembled | (opcode << 26);
     assembled = assembled | (($rs & lower5BitMask) << 21);
@@ -99,13 +100,14 @@ int rTypeAssemble(char opcode, char $rs, char $rt, char $rd, char shamt, char fu
     return assembled;
 }
 
-int iTypeAssemble(char opcode, char $rt, char $rs, int im){
-    int assembled = 0x0000;
-    char lower5BitMask = 0x1f;
-    char lower6BitMask = 0x3f;
-    int lower16BitMask = 0x0000ffff;
+int iTypeAssemble(unsigned char opcode, unsigned char $rt, unsigned char $rs, unsigned int im){
+    uint assembled = 0x00000000;
+    unsigned char lower5BitMask = 0x1f;
+    //char lower6BitMask = 0x3f;
+    uint lower16BitMask = 0x0000ffff;
 
-    assembled = assembled | ((opcode & lower6BitMask) << 26);
+    //std::cout << sizeof opcode << " bytes";
+    assembled = assembled | ((opcode) << 26);
     assembled = assembled | (($rs & lower5BitMask) << 21);
     assembled = assembled | (($rt & lower5BitMask) << 16);
     assembled = assembled | ((im & lower16BitMask) << 0);
@@ -115,8 +117,8 @@ int iTypeAssemble(char opcode, char $rt, char $rs, int im){
 }
 
 int decodeInstruction(currentInstruction curr){
-  char $rd, $rs, $rt, opcode, shamt, funct;
-  int immediate;
+  unsigned char $rd, $rs, $rt, opcode, shamt, funct;
+  unsigned int immediate;
 
 //r-type instructions
   if(curr.name == "add"){
@@ -289,11 +291,109 @@ int decodeInstruction(currentInstruction curr){
 
   else if(curr.name == "lbu"){
     bool ok = false;
+    opcode = 0x24;
+    $rt = registerLookup(curr.token.at(0));
+    immediate = curr.token.at(1).toInt(&ok, 10);
+    $rs = registerLookup(rmParen(curr.token.at(2)));
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "lhu"){
+    bool ok = false;
+    opcode = 0x25;
+    $rt = registerLookup(curr.token.at(0));
+    immediate = curr.token.at(1).toInt(&ok, 10);
+    $rs = registerLookup(rmParen(curr.token.at(2)));
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "ll"){
+    bool ok = false;
+    opcode = 0x30;
+    $rt = registerLookup(curr.token.at(0));
+    immediate = curr.token.at(1).toInt(&ok, 10);
+    $rs = registerLookup(rmParen(curr.token.at(2)));
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "lui"){
+    bool ok = false;
+    opcode = 0x0f;
+    $rt = registerLookup(curr.token.at(0));
+    immediate = curr.token.at(1).toInt(&ok, 10);
+    $rs = 0x00;//registerLookup(rmParen(curr.token.at(2)));
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "lw"){
+    bool ok = false;
     opcode = 0x23;
     $rt = registerLookup(curr.token.at(0));
-    immediate = curr.token.at(1)).toInt(&ok, 10);
-    $rs = registerLookup(rmParen(curr.token.at(2));
+    immediate = curr.token.at(1).toInt(&ok, 10);
+    $rs = registerLookup(rmParen(curr.token.at(2)));
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
 
+  else if(curr.name == "ori"){
+    bool ok = false;
+    opcode = 0x0d;
+    $rt = registerLookup(curr.token.at(0));
+    $rs = registerLookup(curr.token.at(1));
+    immediate = curr.token.at(2).toInt(&ok, 10);
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "slti"){
+    bool ok = false;
+    opcode = 0x0a;
+    $rt = registerLookup(curr.token.at(0));
+    $rs = registerLookup(curr.token.at(1));
+    immediate = curr.token.at(2).toInt(&ok, 10);
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "sltiu"){
+    bool ok = false;
+    opcode = 0x0b;
+    $rt = registerLookup(curr.token.at(0));
+    $rs = registerLookup(curr.token.at(1));
+    immediate = curr.token.at(2).toInt(&ok, 10);
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "sb"){
+    bool ok = false;
+    opcode = 0x28;
+    $rt = registerLookup(curr.token.at(0));
+    immediate = curr.token.at(1).toInt(&ok, 10);
+    $rs = registerLookup(rmParen(curr.token.at(2)));
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "sc"){
+    bool ok = false;
+    opcode = 0x38;
+    $rt = registerLookup(curr.token.at(0));
+    immediate = curr.token.at(1).toInt(&ok, 10);
+    $rs = registerLookup(rmParen(curr.token.at(2)));
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "sh"){
+    bool ok = false;
+    opcode = 0x29;
+    $rt = registerLookup(curr.token.at(0));
+    immediate = curr.token.at(1).toInt(&ok, 10);
+    $rs = registerLookup(rmParen(curr.token.at(2)));
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else if(curr.name == "sw"){
+    bool ok = false;
+    opcode = 0x2b;
+    $rt = registerLookup(curr.token.at(0));
+    immediate = curr.token.at(1).toInt(&ok, 10);
+    $rs = registerLookup(rmParen(curr.token.at(2)));
     return iTypeAssemble(opcode, $rt, $rs, immediate);
   }
 

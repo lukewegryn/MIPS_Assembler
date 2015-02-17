@@ -91,8 +91,24 @@ int rTypeAssemble(char opcode, char $rs, char $rt, char $rd, char shamt, char fu
     return assembled;
 }
 
+int iTypeAssemble(char opcode, char $rt, char $rs, int im){
+    int assembled = 0x0000;
+    char lower5BitMask = 0x1f;
+    char lower6BitMask = 0x3f;
+    int lower16BitMask = 0x0000ffff;
+
+    assembled = assembled | ((opcode & lower6BitMask) << 26);
+    assembled = assembled | (($rs & lower5BitMask) << 21);
+    assembled = assembled | (($rt & lower5BitMask) << 16);
+    assembled = assembled | ((im & lower16BitMask) << 0);
+
+
+    return assembled;
+}
+
 int decodeInstruction(currentInstruction curr){
-  char $rd, $rs, $rt,opcode,shamt, funct;
+  char $rd, $rs, $rt, opcode, shamt, funct;
+  int immediate;
 
 //r-type instructions
   if(curr.name == "add"){
@@ -231,6 +247,16 @@ int decodeInstruction(currentInstruction curr){
 
     return rTypeAssemble(opcode, $rs, $rt, $rd, shamt, funct);
 
+  }
+
+  else if(curr.name == "addi"){
+    bool ok = false;
+    opcode = 0x08;
+    $rt = registerLookup(curr.token.at(0));
+    $rs = registerLookup(curr.token.at(1));
+    immediate = curr.token.at(2).toInt(&ok, 10);
+
+    return iTypeAssemble(opcode, $rt, $rs, immediate);
   }
 
   return 0;

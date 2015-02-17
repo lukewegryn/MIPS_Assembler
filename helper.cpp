@@ -123,7 +123,7 @@ int iTypeAssemble(unsigned char opcode, unsigned char $rt, unsigned char $rs, un
 
 int decodeInstruction(currentInstruction curr){
   unsigned char $rd, $rs, $rt, opcode, shamt, funct;
-  unsigned int immediate;
+  int immediate;
 
 //r-type instructions
   if(curr.name == "add"){
@@ -299,8 +299,10 @@ int decodeInstruction(currentInstruction curr){
     opcode = 0x04;
     $rs = registerLookup(curr.token.at(0));
     $rt = registerLookup(curr.token.at(1));
+    QString label = curr.token.at(2);
     for(int i = 0; i < symbolList.size(); i++){
-      if(curr.label == symbolList.at(i).first){
+      if(label == symbolList.at(i).first){
+            qDebug() << "Found label beq";
             immediate = (symbolList.at(i).second - curr.position - 1);
             return iTypeAssemble(opcode, $rt, $rs, immediate);
           }
@@ -316,9 +318,11 @@ int decodeInstruction(currentInstruction curr){
     opcode = 0x05;
     $rs = registerLookup(curr.token.at(0));
     $rt = registerLookup(curr.token.at(1));
+    QString label = curr.token.at(2);
     for(int i = 0; i < symbolList.size(); i++){
-      if(curr.label == symbolList.at(i).first){
+      if(label == symbolList.at(i).first){
             immediate = (symbolList.at(i).second - curr.position - 1);
+            qDebug() << "Found label bne";
             return iTypeAssemble(opcode, $rt, $rs, immediate);
           }
 

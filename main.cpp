@@ -111,6 +111,7 @@ int main(int argc, char** argv) {
 
     for (int i =0; i < (int)lexed.size(); i++){
       currInstruction.token.clear();
+      currInstruction.label.clear();
       currInstruction.name = QString::fromStdString(lexed[i].name);
       std::vector<lexer::token> tokens = lexed[i].args;
       for(int j=0; j < (int)tokens.size(); j++){       // Prints all the tokens of this instruction like $t1, $t2, $t3
@@ -122,12 +123,7 @@ int main(int argc, char** argv) {
         else
           currInstruction.token.append(QString::fromStdString(tokens[j].string()));
       }
-      //qDebug() << currInstruction.name << "\n";
-      //std::cout << currInstruction.token << std:: endl;
-      /*for(int k = 0; k < currInstruction.token.size(); k++){
-        qDebug() << currInstruction.token.at(k) << " ";
-      }*/
-      //std::cout << std::endl;
+
         currInstruction.position = i;
         parseInstruction(currInstruction, outFileName);
     }
@@ -148,9 +144,9 @@ int main(int argc, char** argv) {
     }
   }
 
-  for(int i = 0; i < symbolList.size(); i++){
+  /*for(int i = 0; i < symbolList.size(); i++){
       qDebug() << symbolList.at(i).first << "\t" << symbolList.at(i).second;
-  }
+  }*/
   //getchar();
   return 0;
 }

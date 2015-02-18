@@ -8,27 +8,28 @@
 #include <exceptions.h>
 #include <string>
 
-QPair<QString, int> currLabel;
-QList<QPair<QString, int> > symbolList;
+QPair<QString, int> currLabel; //holds a single label/location combo
+QList<QPair<QString, int> > symbolList; //holds all of the label/location combos in a "table"
 
-int currentLineNumber = 0;
+int currentLineNumber = 0; //current line number for error handling
 
-struct currentInstruction {
-  QString label;
-  QString name;
-  QStringList token;
-  int position;
+struct currentInstruction { //current instruction to be assembled
+  QString label; //label, if there is one
+  QString name; //name of the instruction
+  QStringList token; //tokens like registers and offsets
+  int position; //current line we are assembling in the file
 } currInstruction;
 
-QString rmParen(QString arg){
+QString rmParen(QString arg){ //remove the parenthases around base of offset
   QString temp;
   temp = arg.remove("(");
   return temp.remove(")");
 }
 
-char registerLookup(QString reg){
+//a string with the register name is passed, and the correct register value is returned
+char registerLookup(QString reg){ 
 
-  if(reg == "$zero" || reg == "$0")
+  if(reg == "$zero" || reg == "$0") //just translating using the MIPS green sheet
     return (char)0;
   else if(reg == "$at")
     return (char)1;
@@ -92,23 +93,25 @@ char registerLookup(QString reg){
     return (char)30;
   else if(reg == "$ra")
     return (char)31;
-  else{
-    std::string errMsg = "You did not enter a valid register at line ";
+  else{ //all of the MIPS registers are listed above so if we get here it means the user put in a bad register
+    std::string errMsg = "Cannot assemble the assembly code at line ";
     errMsg.append(std::to_string(currentLineNumber));
     errMsg.append(".");
     errMsg.append("\n");
-    throw bad_register(errMsg);
+    throw bad_register(errMsg); //throw a bad register exception
   }
 }
 
+//this function is responsible for the R-Type assembly
 int rTypeAssemble(unsigned char opcode, unsigned char $rs, unsigned char $rt, unsigned char $rd, unsigned char shamt, unsigned char funct){
-    uint assembled = 0x00000000;
-    unsigned char lower5BitMask = 0x1f;
+    uint assembled = 0x00000000; //start with a blank 32-bit value
+    unsigned char lower5BitMask = 0x1f; //these masks are because characters are 8 bit and need to be "trimmed"
     unsigned char lower6BitMask = 0x3f;
 
-    assembled = assembled | (opcode << 26);
-    assembled = assembled | (($rs & lower5BitMask) << 21);
-    assembled = assembled | (($rt & lower5BitMask) << 16);
+    //this is all bit manipulation. I am just stringing together the assembled code using the input values
+    assembled = assembled | (opcode << 26); //shift the opcode to the left and add to assembled
+    assembled = assembled | (($rs & lower5BitMask) << 21); //we only want to insert the lower 5 bits of $rs
+    assembled = assembled | (($rt & lower5BitMask) << 16); 
     assembled = assembled | (($rd & lower5BitMask) << 11);
     assembled = assembled | ((shamt & lower5BitMask) << 6);
     assembled = assembled | ((funct & lower6BitMask) << 0);
@@ -116,8 +119,9 @@ int rTypeAssemble(unsigned char opcode, unsigned char $rs, unsigned char $rt, un
     return assembled;
 }
 
+//this is very similar to the R-Type, just different parameters/shifts
 int iTypeAssemble(unsigned char opcode, unsigned char $rt, unsigned char $rs, unsigned int im){
-    uint assembled = 0x00000000;
+    uint assembled = 0x00000000; 
     unsigned char lower5BitMask = 0x1f;
     uint lower16BitMask = 0x0000ffff;
     assembled = assembled | ((opcode) << 26);
@@ -129,7 +133,11 @@ int iTypeAssemble(unsigned char opcode, unsigned char $rt, unsigned char $rs, un
     return assembled;
 }
 
-int decodeInstruction(currentInstruction curr){
+//this should all be pretty self-explanatory.
+//I am simply assigning values to registers 
+//based on the name/type of instruction and then passing them
+//to the correct assembling function above.
+int decodeInstruction(currentInstruction curr){ //this is where the instructions are actually assembled
   unsigned char $rd, $rs, $rt, opcode, shamt, funct;
   $rd = $rs = $rt = opcode = shamt = funct = 0x00;
   int immediate;
@@ -273,6 +281,7 @@ int decodeInstruction(currentInstruction curr){
 
   }
 
+//i-Type instructions
   else if(curr.name == "addi"){
     bool ok = false;
     opcode = 0x08;
@@ -317,7 +326,10 @@ int decodeInstruction(currentInstruction curr){
           }
 
     }
-     std::string errMsg = "You did not enter a valid label at line ";
+    std::string errLabel = label.toUtf8().constData();
+    std::string errMsg = "Undefined label \"";
+    errMsg.append(errLabel);
+    errMsg.append("\" at line ");
     errMsg.append(std::to_string(currentLineNumber));
     errMsg.append(".");
     errMsg.append("\n");
@@ -341,7 +353,10 @@ int decodeInstruction(currentInstruction curr){
             return iTypeAssemble(opcode, $rt, $rs, immediate);
           }
     }
-    std::string errMsg = "You did not enter a valid label at line ";
+    std::string errLabel = label.toUtf8().constData();
+    std::string errMsg = "Undefined label \"";
+    errMsg.append(errLabel);
+    errMsg.append("\" at line ");
     errMsg.append(std::to_string(currentLineNumber));
     errMsg.append(".");
     errMsg.append("\n");
@@ -461,7 +476,7 @@ int decodeInstruction(currentInstruction curr){
   }
 
   else{
-    std::string errMsg = "You did not enter a valid instruction at line ";
+    std::string errMsg = "Cannot assemble the assembly code at line ";
     errMsg.append(std::to_string(currentLineNumber));
     errMsg.append(".");
     errMsg.append("\n");

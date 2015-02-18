@@ -21,6 +21,11 @@ struct bad_register: public std::runtime_error{
   std::runtime_error(msg){ }
 };
 
+struct label_not_defined: public std::runtime_error{
+  label_not_defined(const std:: string& msg):
+  std::runtime_error(msg){ }
+};
+
 struct bad_asm: public std::runtime_error {
   const int line;
 
@@ -29,6 +34,7 @@ struct bad_asm: public std::runtime_error {
     line(l)
   { }
 };
+
 
 struct bad_label: public std::runtime_error {
   const int line;

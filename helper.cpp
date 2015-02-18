@@ -4,6 +4,7 @@
 #include <QList>
 #include <iostream>
 #include <QPair>
+#include <QDebug>
 #include <exceptions.h>
 #include <string>
 
@@ -308,6 +309,7 @@ int decodeInstruction(currentInstruction curr){
     $rs = registerLookup(curr.token.at(0));
     $rt = registerLookup(curr.token.at(1));
     QString label = curr.token.at(2);
+    if(label.toInt(&ok, 10) == 0 && label != "0"){
     for(int i = 0; i < symbolList.size(); i++){
       if(label == symbolList.at(i).first){
             immediate = (symbolList.at(i).second - curr.position - 1);
@@ -315,6 +317,12 @@ int decodeInstruction(currentInstruction curr){
           }
 
     }
+     std::string errMsg = "You did not enter a valid label at line ";
+    errMsg.append(std::to_string(currentLineNumber));
+    errMsg.append(".");
+    errMsg.append("\n");
+    throw label_not_defined(errMsg);
+  }
       immediate = curr.token.at(2).toInt(&ok, 10);
       return iTypeAssemble(opcode, $rt, $rs, immediate);
 
@@ -326,13 +334,19 @@ int decodeInstruction(currentInstruction curr){
     $rs = registerLookup(curr.token.at(0));
     $rt = registerLookup(curr.token.at(1));
     QString label = curr.token.at(2);
+    if(label.toInt(&ok, 10) == 0 && label != "0"){
     for(int i = 0; i < symbolList.size(); i++){
       if(label == symbolList.at(i).first){
             immediate = (symbolList.at(i).second - curr.position - 1);
             return iTypeAssemble(opcode, $rt, $rs, immediate);
           }
-
     }
+    std::string errMsg = "You did not enter a valid label at line ";
+    errMsg.append(std::to_string(currentLineNumber));
+    errMsg.append(".");
+    errMsg.append("\n");
+    throw label_not_defined(errMsg);
+  }
       immediate = curr.token.at(2).toInt(&ok, 10);
       return iTypeAssemble(opcode, $rt, $rs, immediate);
 
@@ -444,6 +458,14 @@ int decodeInstruction(currentInstruction curr){
     immediate = curr.token.at(1).toInt(&ok, 10);
     $rs = registerLookup(rmParen(curr.token.at(2)));
     return iTypeAssemble(opcode, $rt, $rs, immediate);
+  }
+
+  else{
+    std::string errMsg = "You did not enter a valid instruction at line ";
+    errMsg.append(std::to_string(currentLineNumber));
+    errMsg.append(".");
+    errMsg.append("\n");
+    throw bad_instruction(errMsg);
   }
 
   return 0;

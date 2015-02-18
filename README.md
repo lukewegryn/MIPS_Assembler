@@ -4,6 +4,7 @@ Assembler for the MIPS Architecture
 Pull this repositiory and put all of the files in a single folder named "myAssembler".
 You must have the QT framework to compile this project.
 
+0. Open a terminal and navigate (cd) to your "myAssembler" folder.
 1. Run "qmake -project". Some files will be made.
 2. Run "qmake". Some more files will be made.
 3. Open the "Makefile" that QT created.

@@ -1,6 +1,8 @@
 # MIPS_Assembler
 Assembler for the MIPS Architecture
 
+WARNING: For this program to work correctly, your processor must use 32-bit integers. Since the output must be 32-bits (because that's how MIPS works), anything smaller will not give you the correct results.
+
 Pull this repositiory and put all of the files in a single folder named "myAssembler".
 You must have the QT framework to compile this project.
 

@@ -11,6 +11,16 @@ struct illegal_request: public std::runtime_error {
   { }
 };
 
+struct bad_instruction: public std::runtime_error{
+  bad_instruction(const std:: string& msg):
+  std::runtime_error(msg){ }
+};
+
+struct bad_register: public std::runtime_error{
+  bad_register(const std:: string& msg):
+  std::runtime_error(msg){ }
+};
+
 struct bad_asm: public std::runtime_error {
   const int line;
 

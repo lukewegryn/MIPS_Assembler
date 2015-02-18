@@ -8,7 +8,6 @@
 #include <vector>
 #include <QStringList>
 #include <QString>
-#include <QDebug>
 #include <QFile>
 #include <QTextStream>
 #include <QByteArray>
@@ -38,7 +37,11 @@ QByteArray parseInstruction(currentInstruction curr, QString outFile){
       return 0;
 
       QTextStream out(&file);
-      //QString hexadecimal = QByteArray::fromHex(QString::number(assembled));
+      uint currMask = 0xf0000000;
+      while(!(assembled & currMask)){
+        out << 0;
+        currMask = currMask >> 4;
+      }
       out << hex << assembled << "\n";
       return 0;
 }
@@ -72,31 +75,13 @@ int main(int argc, char** argv) {
     if(file.exists()){
       file.remove();
     }
-    qDebug() << outFileName;
     std::cout << std::endl;
-    std::string objName = baseName + ".obj";
+    //std::string objName = baseName + ".obj";
     try {
       auto text = read_file(asmName);
       try {
 		auto lexed = lexer::analyze(text);		// Parses the entire file and returns a vector of instructions
 
-		/*for (int i =0; i < (int)lexed.size(); i++){
-
-			if(lexed[i].labels.size() > 0)		// Checking if there is a label in the current instruction
-				std::cout << "label = " << lexed[i].labels[0] << "\n";		// Prints the label
-
-			std::cout<< "instruction name = " << lexed[i].name<< "\n";		// Prints the name of instruction
-
-			std::cout << "tokens = ";
-			std::vector<lexer::token> tokens = lexed[i].args;
-			for(int j=0; j < (int)tokens.size(); j++){       // Prints all the tokens of this instruction like $t1, $t2, $t3
-				if (tokens[j].type == lexer::token::Integer)
-					std::cout<<tokens[j].integer()<<" ";
-				else
-					std::cout<<tokens[j].string()<<" ";
-			}
-			std::cout << "\n\n\n";
-		}*/
     for (int i =0; i < (int)lexed.size(); i++){
       currInstruction.token.clear();
       if(lexed[i].labels.size() > 0){		// Checking if there is a label in the current instruction
@@ -104,7 +89,6 @@ int main(int argc, char** argv) {
         currLabel.first = currInstruction.label;
         currLabel.second = i;
         symbolList.append(currLabel);
-        //qDebug() << currInstruction.label << "\n";
         }
 
     }
@@ -117,7 +101,6 @@ int main(int argc, char** argv) {
       for(int j=0; j < (int)tokens.size(); j++){       // Prints all the tokens of this instruction like $t1, $t2, $t3
         if (tokens[j].type == lexer::token::Integer){
           int currInt = tokens[j].integer();
-          //std::cout << tokens[j].integer << std::endl;
           currInstruction.token.append(QString::number(currInt));
         }
         else
@@ -125,6 +108,7 @@ int main(int argc, char** argv) {
       }
 
         currInstruction.position = i;
+        currentLineNumber = i+1;
         parseInstruction(currInstruction, outFileName);
     }
 
@@ -140,13 +124,10 @@ int main(int argc, char** argv) {
 
     } catch (const std::runtime_error& err) {
       std::cout << err.what() << endl;
-      return 1;
+      //return 1;
+      //return 0;
     }
   }
 
-  /*for(int i = 0; i < symbolList.size(); i++){
-      qDebug() << symbolList.at(i).first << "\t" << symbolList.at(i).second;
-  }*/
-  //getchar();
   return 0;
 }

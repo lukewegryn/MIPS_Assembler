@@ -1,13 +1,16 @@
-#include <QDebug>
 #include <QByteArray>
 #include <bitset>
 #include <QStringList>
 #include <QList>
 #include <iostream>
 #include <QPair>
+#include <exceptions.h>
+#include <string>
 
 QPair<QString, int> currLabel;
 QList<QPair<QString, int> > symbolList;
+
+int currentLineNumber = 0;
 
 struct currentInstruction {
   QString label;
@@ -23,6 +26,7 @@ QString rmParen(QString arg){
 }
 
 char registerLookup(QString reg){
+
   if(reg == "$zero" || reg == "$0")
     return (char)0;
   else if(reg == "$at")
@@ -87,7 +91,13 @@ char registerLookup(QString reg){
     return (char)30;
   else if(reg == "$ra")
     return (char)31;
-  return (char)-1;
+  else{
+    std::string errMsg = "You did not enter a valid register at line ";
+    errMsg.append(std::to_string(currentLineNumber));
+    errMsg.append(".");
+    errMsg.append("\n");
+    throw bad_register(errMsg);
+  }
 }
 
 int rTypeAssemble(unsigned char opcode, unsigned char $rs, unsigned char $rt, unsigned char $rd, unsigned char shamt, unsigned char funct){
@@ -108,10 +118,7 @@ int rTypeAssemble(unsigned char opcode, unsigned char $rs, unsigned char $rt, un
 int iTypeAssemble(unsigned char opcode, unsigned char $rt, unsigned char $rs, unsigned int im){
     uint assembled = 0x00000000;
     unsigned char lower5BitMask = 0x1f;
-    //char lower6BitMask = 0x3f;
     uint lower16BitMask = 0x0000ffff;
-
-    //std::cout << sizeof opcode << " bytes";
     assembled = assembled | ((opcode) << 26);
     assembled = assembled | (($rs & lower5BitMask) << 21);
     assembled = assembled | (($rt & lower5BitMask) << 16);
@@ -123,6 +130,7 @@ int iTypeAssemble(unsigned char opcode, unsigned char $rt, unsigned char $rs, un
 
 int decodeInstruction(currentInstruction curr){
   unsigned char $rd, $rs, $rt, opcode, shamt, funct;
+  $rd = $rs = $rt = opcode = shamt = funct = 0x00;
   int immediate;
 
 //r-type instructions
@@ -302,7 +310,6 @@ int decodeInstruction(currentInstruction curr){
     QString label = curr.token.at(2);
     for(int i = 0; i < symbolList.size(); i++){
       if(label == symbolList.at(i).first){
-            qDebug() << "Found label beq";
             immediate = (symbolList.at(i).second - curr.position - 1);
             return iTypeAssemble(opcode, $rt, $rs, immediate);
           }
@@ -322,7 +329,6 @@ int decodeInstruction(currentInstruction curr){
     for(int i = 0; i < symbolList.size(); i++){
       if(label == symbolList.at(i).first){
             immediate = (symbolList.at(i).second - curr.position - 1);
-            qDebug() << "Found label bne";
             return iTypeAssemble(opcode, $rt, $rs, immediate);
           }
 

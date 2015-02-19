@@ -67,6 +67,8 @@ int main(int argc, char** argv) {
   for (int i = 0; i < argc; ++i) {
     std::string asmName(argv[i]);
 
+    asmName += ".asm";
+    
     if (!util::ends_with_subseq(asmName, std::string(".asm"))) {
       std::cerr << "Need a valid file name (that ends in .asm)" << std::endl;
       std::cerr << "(Bad name: " << asmName << ")" << std::endl;
